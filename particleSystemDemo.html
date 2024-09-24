@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <title>Particle System Demo</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.10.0/p5.js"></script>
-    <script src="particle-system.js"></script>
+    <script src="spark.js"></script>
 </head>
 <body style="background: black;">
     <script>
         let particleSystem;
         function setup() {
             createCanvas(400, 400);
-            particleSystem = new ParticleSystem();
+            particleSystem = new Spark();
             colorMode(HSL, 360, 100, 100, 100);
             setInterval(() => {
                 particleSystem.createParticleGroup(

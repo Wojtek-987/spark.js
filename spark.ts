@@ -19,7 +19,7 @@ type direction = {
     y: number
 }
 
-class ParticleSystem {
+class Spark {
     activeParticleGroups: ParticleGroup[] = [];
 
     createParticleGroup(colour: hslColour, variation: number, count: number, pos: position): void {

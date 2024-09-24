@@ -1,5 +1,5 @@
 "use strict";
-class ParticleSystem {
+class Spark {
     constructor() {
         this.activeParticleGroups = [];
     }

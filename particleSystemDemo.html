@@ -4,52 +4,60 @@
     <meta charset="UTF-8">
     <title>Particle System Demo</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.10.0/p5.js"></script>
-    <script src="Particle%20System.js"></script>
+    <script src="particle-system.js"></script>
 </head>
 <body style="background: black;">
     <script>
         let particleSystem;
         function setup() {
             createCanvas(400, 400);
-            particleSystem = new ParticleSystem(false);
-            particleSystem.createParticleGroup(50, 30, 60, 10, 10, 200, 200);
+            particleSystem = new ParticleSystem();
             colorMode(HSL, 360, 100, 100, 100);
             setInterval(() => {
                 particleSystem.createParticleGroup(
-                    Math.floor(Math.random() * 361),
-                    90,
-                    Math.floor(Math.random() * 101),
+                    {
+                        h: Math.floor(Math.random() * 361),
+                        s: 90,
+                        l: Math.floor(Math.random() * 101)
+                    },
+                    20,
                     10,
-                    10,
-                    Math.floor(Math.random() * 400),
-                    Math.floor(Math.random() * 400)
+                    {
+                        x: Math.floor(Math.random() * 400),
+                        y: Math.floor(Math.random() * 400)
+                    }
                 );
-            }, 20);
+            }, 50);
         }
 
         function draw() {
             background(10);
             noStroke();
-            const allParticles = particleSystem.activeParticleGroups.flatMap(group => group.drawInfo());
 
             particleSystem.activeParticleGroups.forEach(group => {
-                group.drawInfo().forEach(particle => {
-                    particle.update(1);
-                    fill(particle.colourH, particle.colourS, particle.colourL, particle.opacity);
-                    rect(particle.x, particle.y, 3, 3);
+                group.particlesArray.forEach(particle => {
+                    particle.update({x: 0, y: 1});
+                    fill(particle.colour.h, particle.colour.s, particle.colour.l, particle.getOpacity);
+                    rect(particle.pos.x, particle.pos.y, 3, 3);
                 });
             });
+
+            particleSystem.update();
         }
 
         function mousePressed() {
             particleSystem.createParticleGroup(
-                Math.floor(Math.random() * 361),
-                90,
-                Math.floor(Math.random() * 101),
+                {
+                    h: Math.floor(Math.random() * 361),
+                    s: 90,
+                    l: Math.floor(Math.random() * 101)
+                },
                 10,
                 10,
-                mouseX,
-                mouseY
+                {
+                    x: mouseX,
+                    y: mouseY
+                },
             );
         }
     </script>

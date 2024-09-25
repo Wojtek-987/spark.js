@@ -4,29 +4,40 @@
     <meta charset="UTF-8">
     <title>Particle System Demo</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.10.0/p5.js"></script>
-    <script src="spark.js"></script>
+    <script src="./dist/spark.js"></script>
 </head>
 <body style="background: black;">
     <script>
         let particleSystem;
+
+        function generateBurst(posx, posy) {
+            particleSystem.createParticleGroup(
+                {
+                    h: Random.mini(0, 360),
+                    s: Random.mini(60, 100),
+                    l: Random.mini(60, 100)
+                },
+                30,
+                Random.mini(2, 12),
+                {
+                    x: posx,
+                    y: posy
+                },
+                new Vector(
+                    Random.variate(0, 3),
+                    Random.variate(0, 3)
+                ),
+                Random.mini(1, 25)
+            );
+        }
+
         function setup() {
+            frameRate(60);
             createCanvas(400, 400);
             particleSystem = new Spark();
             colorMode(HSL, 360, 100, 100, 100);
             setInterval(() => {
-                particleSystem.createParticleGroup(
-                    {
-                        h: Math.floor(Math.random() * 361),
-                        s: 90,
-                        l: Math.floor(Math.random() * 101)
-                    },
-                    20,
-                    10,
-                    {
-                        x: Math.floor(Math.random() * 400),
-                        y: Math.floor(Math.random() * 400)
-                    }
-                );
+                generateBurst(Random.mini(0, 400), Random.mini(0, 400))
             }, 50);
         }
 
@@ -34,31 +45,15 @@
             background(10);
             noStroke();
 
-            particleSystem.activeParticleGroups.forEach(group => {
-                group.particlesArray.forEach(particle => {
-                    particle.update({x: 0, y: 1});
-                    fill(particle.colour.h, particle.colour.s, particle.colour.l, particle.getOpacity);
-                    rect(particle.pos.x, particle.pos.y, 3, 3);
-                });
+            particleSystem.draw((particle) => {
+                particle.update();
+                fill(particle.colour.h, particle.colour.s, particle.colour.l, particle.getOpacity);
+                rect(particle.pos.x, particle.pos.y, 3, 3);
             });
-
-            particleSystem.update();
         }
 
         function mousePressed() {
-            particleSystem.createParticleGroup(
-                {
-                    h: Math.floor(Math.random() * 361),
-                    s: 90,
-                    l: Math.floor(Math.random() * 101)
-                },
-                10,
-                10,
-                {
-                    x: mouseX,
-                    y: mouseY
-                },
-            );
+            generateBurst(mouseX, mouseY);
         }
     </script>
 </body>

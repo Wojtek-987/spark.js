@@ -1,3 +1,6 @@
+/// <reference path="vector.ts" />
+
+// === Globals ===
 type hslColour = {
     h: number,
     s: number,
@@ -14,46 +17,56 @@ type velocity = {
     y: number
 }
 
-type direction = {
-    x: number,
-    y: number
-}
+
+
+
+// === Spark Class (a particle system) ===
 
 class Spark {
-    activeParticleGroups: ParticleGroup[] = [];
+    public activeParticleGroups: ParticleGroup[] = [];
 
-    createParticleGroup(colour: hslColour, variation: number, count: number, pos: position): void {
-        const newParticleGroup = new ParticleGroup({...colour}, variation, count, {...pos});
+    public createParticleGroup(colour: hslColour, variation: number, count: number, pos: position, dir: Vector): void {
+        const newParticleGroup: ParticleGroup = new ParticleGroup({...colour}, variation, count, {...pos}, dir);
         this.activeParticleGroups.push(newParticleGroup);
 
-        newParticleGroup.lifetimePromise.then(() => {
+        newParticleGroup.lifetimePromise.then((): void => {
             this.activeParticleGroups = this.activeParticleGroups.filter(particleGroup => particleGroup !== newParticleGroup);
         });
     }
 
-    update(): void {
-        for (const particleGroup of this.activeParticleGroups) {
-            particleGroup.update();
+    public draw(userParticleFunction: (particle: Particle) => void): void {
+        for (const group of this.activeParticleGroups) {
+            for (const particle of group.particlesArray) {
+                userParticleFunction(particle);
+            }
+
+            group.update();
         }
     }
 }
 
 
+// === A single burst of particles ===
 class ParticleGroup {
     readonly colour: hslColour;
     private readonly variation: number;
     private readonly count: number;
     private readonly pos: position;
     private particles: Particle[] = [];
+    private readonly dir: Vector;
+    private readonly decay: number;
+
     private resolveLifetimePromise!: () => void;
     public lifetimePromise: Promise<void>;
     private isResolved: boolean = false;
 
-    constructor(colour: hslColour, variation: number, count: number, pos: position) {
+    constructor(colour: hslColour, variation: number, count: number, pos: position, dir: Vector, decay: number = 5) {
         this.colour = {...colour};
         this.variation = variation;
         this.count = count;
         this.pos = {...pos};
+        this.dir = dir;
+        this.decay = Numbers.clamp(1, decay, 25);
 
         this.burst(this.pos.x, this.pos.y);
 
@@ -63,19 +76,21 @@ class ParticleGroup {
     }
 
     private burst(x: number, y: number): void {
-        for (let i = 0; i < this.count; i++) {
+        for (let i: number = 0; i < this.count; i++) {
             this.particles.push(
                 new Particle(
                     {
-                        h: this.randomize(this.colour.h),
-                        s: this.randomize(this.colour.s),
-                        l: this.randomize(this.colour.l)
+                        h: Random.variate(this.colour.h, this.variation, 1),
+                        s: Random.variate(this.colour.h, this.variation, 1),
+                        l: Random.variate(this.colour.h, this.variation, 1)
                     },
                     { x, y },
-                    {
-                        x: (Math.random() - 0.5) * this.variation / 3,
-                        y: (Math.random() - 0.5) * this.variation / 3
-                    }
+                    new Vector(
+                        Random.miniFloat(-2, 2, 2),
+                        Random.miniFloat(-2, 2, 2)
+                    ),
+                    this.dir,
+                    this.decay
                 )
             );
         }
@@ -94,37 +109,33 @@ class ParticleGroup {
     get particlesArray(): Particle[] {
         return this.particles;
     }
-
-    private randomize(value: number): number {
-        return value + Math.floor(Math.random() * (this.variation * 2 + 1)) - this.variation;
-    }
 }
 
 
+// === A single particle ===
 class Particle {
     private opacity: number = 100;
     readonly colour: hslColour;
-    pos: position;
-    vel: velocity;
-    dir: direction;
+    public readonly pos: position;
+    public vel: velocity;
+    private dir: Vector;
+    public readonly decay: number;
 
-    constructor(colour: hslColour, pos: position, vel: velocity, dir: direction = {x: 0, y: 0}) {
+    constructor(colour: hslColour, pos: position, vel: velocity, dir: Vector, decay: number) {
         this.colour = colour;
         this.pos = {...pos};
         this.vel = {...vel};
-        this.dir = {...dir};
+        this.dir = dir.copy();
+        this.decay = decay;
     }
 
     get getOpacity() {
         return this.opacity;
     }
 
-    public update(dir: direction = {x: 0, y: 0}): void {
+    public update(): void {
         this.pos.x += this.vel.x + this.dir.x;
         this.pos.y += this.vel.y + this.dir.y;
-        this.opacity -= 5;
-
-        this.dir.x += dir.x;
-        this.dir.y += dir.y;
+        this.opacity -= this.decay;
     }
 }

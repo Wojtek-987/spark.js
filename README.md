@@ -1,9 +1,9 @@
-# Spark.js - a TypeScript 2D particle FX library for the web
+# Spark.js - a TypeScript 2D particle FX module
 
-## Online [demo](https://editor.p5js.org/Wojtek987/sketches/UqBWRs7yg) with p5.js
+## Legacy [demo](https://editor.p5js.org/Wojtek987/sketches/UqBWRs7yg) with p5.js
 
 ## Usage:
-Spark.js is a library that lets the user have granular control over the necessary things, but seamlessly handles the rest under the hood.
+Spark.js is a module that lets the user have granular control over the necessary things, but seamlessly handles the rest under the hood.
 
 Download and include the `spark.js` file in your html:
 ```html
@@ -34,48 +34,37 @@ const pos = {
     x: 50,
     Y: 50
 }
+```
 
+### Adding direction or "gravity" to the particle group:
+```js
+// direction (optional). This can make the particles burst in one direction, not the firework-like default of (x: 0, y: 0). These values are added each update to the pos of the Particle. Negative values are accepted
+const direction = new Vector(0, 1);
+```
+
+### Creating a burst:
+```js
 // this creates a ParticleGroup. It can be accessed through the Spark through its [.activeParticleGroups] property. Once a ParticleGroup has been created, it should be handled in the draw() loop immediately.
-spark.createParticleGroup(myHSLColour, variation, count, pos);
+spark.createParticleGroup(myHSLColour, variation, count, pos, direction);
+```
 
-// (...)
-
-// size for drawing, this setup is up to you. We're drawing squares in the HTML canvas in this example
-const particleSize = 3; //px if you're using HTML canvas
-
-// direction (optional). This can make the particles burst in one direction, not the firework-like default of {x: 0, y: 0}. These values are added each update to the pos of the Particle. Negative values are accepted
-const direction = {
-    x: 0,
-    y: 1
-}
-
-
-// ----------- in your draw() loop: -----------
-
+### In your draw() loop:
+```js
 // Loop through all Particle instances, draw, and update them
 function myDraw() {
-    spark.activeParticleGroups.forEach(group => {
-        group.particlesArray.forEach(particle => {
-            // This will update the current Particle's position, opacity, and velocity (dir)
-            particle.update(direction); // argument optional
-    
-            // (assuming you're using an HTML canvas)
-            // set the fill style with the converted HSL to RGBA
-            ctx.fillStyle = yourHslToRgbaFunction(particle.colour.h, particle.colour.s, particle.colour.l, particle.getOpacity);
-    
-            // Draw the rectangle at particle's position
-            ctx.fillRect(particle.pos.x, particle.pos.y, particleSize, particleSize);
-        });
+    spark.draw((particle) => {
+        particle.update();
+
+        // example of drawing to HTML canvas with P5.js (external drawing library)
+        fill(particle.colour.h, particle.colour.s, particle.colour.l, particle.getOpacity);
+        rect(particle.pos.x, particle.pos.y, 3, 3);
     });
-    
-    // VERY IMPORTANT! This handles the garbage collection
-    spark.update();
 }
 ```
 
 
 ### Types:
-```js
+```ts
 type hslColour = {
     h: number,
     s: number,
@@ -91,41 +80,63 @@ type velocity = {
     x: number,
     y: number
 }
-
-type direction = {
-    x: number,
-    y: number
-}
 ```
 
 ### Spark class properties:
-```js
+```ts
 let groups: ParticleGroup[] = myParticleSystem.activeParticleGroups; // returns all instances of active ParticleGroup classes
-// A ParticleGroup becomes inactive after all particles have reached an opacity of 0
+// A ParticleGroup is deleted after all particles have reached an opacity of 0
+
+
+spark.draw(callback(currentParticleForProcessing)); // handles processing of every particle with your callback function
 ```
 
 ### ParticleGroup class properties:
-```js
-let myParticleArray: Particle[] = myParticleGroup.particlesArray; // returns a list of all of its Particle class instances
+```ts
+let myParticleArray: Particle[] = myParticleGroup.particlesArray; // returns a list of all of a PraticleGroup's Particle class instances
 ```
 
 ### Particle class properties:
-```js
-private opacity: number = 100; int(0-100)
+```ts
+private opacity: number = 100; // int(0-100)
 readonly colour: hslColour;
-pos: position;
-vel: velocity;
-dir: direction;
+public readonly pos: position;
+public vel: velocity;
+private dir: Vector;
+public readonly decay: number;
 
 // let myOpacity: number = myParticle.getOpacity -> returns the current opacity of the Particle
+```
 
-// how these are used in the update function:
-public update(dir: direction = {x: 0, y: 0}): void {
-    this.pos.x += this.vel.x + this.dir.x;
-    this.pos.y += this.vel.y + this.dir.y;
-    this.opacity -= 5;
+# Vector.ts
+## Math library
 
-    this.dir.x += dir.x;
-    this.dir.y += dir.y;
-}
+### Vector docs:
+```ts
+const myVector: Vector = new Vector(1, -5);
+
+myVector.copy(); // returns a copy of the vector to avoid pointers
+
+myVector.overwrite(-2, 7.5); // overwrites the vector
+
+myVector.magnitude(); // returns the magnitude (length) of the vector
+
+myVector.normalize(); // normalizes the vector
+
+myVector.rotate(angle: radians); // rotates the vector
+
+myVector.rotation; // getter for the current rotation in radians
+```
+### Random docs:
+```ts
+Random.mini(0, 5); // returns a random int [0, 5] inclusive
+
+Random.miniFloat(0, 5, 2); // returns a random float [0, 5] with decimal precision of 2
+
+Random.variate(5, 2, 1); // returns a random float [3-7] with decimal precision of 1
+```
+
+### Numbers docs:
+```ts
+Numbers.clamp(variable, 2, 4); // returns a variable if within range [2-4], else returns the closest limit
 ```

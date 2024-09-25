@@ -16,7 +16,7 @@ Download and include the `spark.js` file in your html:
 // create an instance of the Spark class. This will be the collection of its ParticleGroups and Particles. You can have multiple of these running simultaneously, ex. one for directional combat bursts and one for generic firework-like bursts
 const spark = new Spark();
 
-// base particle colour
+// base particle colour HSL(360, 100, 100)
 const myHSLColour = {
     h: 20,
     s: 65,
@@ -111,7 +111,7 @@ let myParticleArray: Particle[] = myParticleGroup.particlesArray; // returns a l
 
 ### Particle class properties:
 ```js
-private opacity: number = 100;
+private opacity: number = 100; int(0-100)
 readonly colour: hslColour;
 pos: position;
 vel: velocity;

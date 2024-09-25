@@ -6,7 +6,7 @@
 ## Usage:
 Spark.js is a module that lets the user have granular control over the necessary things, but seamlessly handles the rest under the hood.
 
-Download and include the `spark.js` file in your html:
+Download and include the `spark.js` file in your html (dist/ folder):
 ```html
 <script src="path/to/the/script/spark.js"></script>
 ```

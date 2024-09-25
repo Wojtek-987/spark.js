@@ -1,6 +1,7 @@
-# Spark.js - a TypeScript 2D particle FX module
+# Spark.js
+## TypeScript 2D particle FX module/library
 
-## Legacy [demo](https://editor.p5js.org/Wojtek987/sketches/UqBWRs7yg) with p5.js
+## [Demo](https://editor.p5js.org/Wojtek987/sketches/UqBWRs7yg) with p5.js
 
 ## Usage:
 Spark.js is a module that lets the user have granular control over the necessary things, but seamlessly handles the rest under the hood.
@@ -40,6 +41,12 @@ const pos = {
 ```js
 // direction (optional). This can make the particles burst in one direction, not the firework-like default of (x: 0, y: 0). These values are added each update to the pos of the Particle. Negative values are accepted
 const direction = new Vector(0, 1);
+```
+
+### Controling the lifespan of Particles within a ParticleGroup:
+The ```decay``` parameter is the amount substracted each frame from the Particle's opacity (0-100). Bigger values mean shorter lifespan.
+```js
+const decay = 5; // default value
 ```
 
 ### Creating a burst:
@@ -107,7 +114,9 @@ public readonly decay: number;
 
 // let myOpacity: number = myParticle.getOpacity -> returns the current opacity of the Particle
 ```
-
+### Considerations:
+This library was built and optimized for a ~60fps experience. Shifting significantly away from that value will require adjustments in the [decay], [vel], and [dir] parameters.
+---
 # Vector.ts
 ## Math library
 

@@ -1,4 +1,4 @@
-# Spark.js - a TypeScript particle library
+# Spark.js - a TypeScript 2D particle FX library for the web
 
 ## Online [demo](https://editor.p5js.org/Wojtek987/sketches/UqBWRs7yg) with p5.js
 

@@ -136,6 +136,6 @@ class Particle {
     public update(): void {
         this.pos.x += this.vel.x + this.dir.x;
         this.pos.y += this.vel.y + this.dir.y;
-        this.opacity -= this.decay;
+        this.opacity = Numbers.clamp(this.opacity - this.decay, 0, 100);
     }
 }
